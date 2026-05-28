@@ -14,7 +14,7 @@
     <name>feign-mock-spring-boot-starter</name>
     <description>
         A Spring Boot starter that enables annotation-driven Mock support for OpenFeign clients.
-        Supports JSON file, Nacos config, and custom provider data sources with runtime hot-switching.
+        Supports JSON file, config, and custom provider data sources.
     </description>
     <url>https://github.com/devoracode/feign-mock-spring-boot-starter</url>
 

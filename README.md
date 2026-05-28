@@ -10,12 +10,11 @@
 
 | 特性 | 说明 |
 |------|------|
-| 三种数据源 | 自定义 Provider > 指定 JSON 文件 > key 自动查找（Nacos/本地文件） |
+| 三种数据源 | 自定义 Provider > 指定 JSON 文件 > key 自动查找（配置文件/本地文件） |
 | 运行时热切换 | 配合 Nacos `@RefreshScope`，无需重启即可切换 Mock 数据 |
 | 零生产侵入 | `feign.mock.enabled=false`（默认）时切面不工作，无任何额外开销 |
 | 可扩展数据源 | 实现 `MockDataSource` 接口并注册为 Bean，自动接入加载链路 |
 | 方法级粒度 | 同一 Feign 接口可部分方法 Mock、部分方法真实调用 |
-| IDE 友好 | 提供 `spring-configuration-metadata.json`，配置项自动补全 |
 
 ---
 
@@ -40,7 +39,7 @@ feign:
     enabled: true
 ```
 
-> 生产环境不配置此项（默认 false），或在 Nacos 对应命名空间保持 false。
+> 生产环境不配置此项（默认 false）。
 
 ### 3. 标注 `@MockMethod`
 
@@ -48,18 +47,18 @@ feign:
 @FeignClient(name = "user-service")
 public interface UserFeignClient {
 
-    // ① key 自动推导（接口类名首字母小写.方法名） → 查 Nacos 或 classpath:mock/userFeignClient/getUserById.json
+    // ① key 自动推导（接口类名首字母小写.方法名）→ 查配置文件或 classpath:mock/userFeignClient/getUserById.json
     @MockMethod
     @GetMapping("/api/users/{userId}")
     UserDTO getUserById(@PathVariable Long userId);
 
     // ② 手动指定 key
-    @MockMethod(value = "user-service.listUsers")
+    @MockMethod(value = "userFeignClient.listUsers")
     @GetMapping("/api/users")
     List<UserDTO> listUsers(@RequestParam Integer page, @RequestParam Integer size);
 
-    // ③ 直接指定 JSON 文件
-    @MockMethod(jsonFile = "mock/user/getOrder.json")
+    // ③ 直接指定 JSON 文件（路径相对 classpath 根目录）
+    @MockMethod(jsonFile = "mock/order/getOrder.json")
     @GetMapping("/api/orders/{orderId}")
     OrderDTO getOrder(@PathVariable Long orderId);
 
@@ -82,8 +81,8 @@ Provider（provider=）
 JSON 文件（jsonFile=）
     ↓ 未配置
 key 查找
-    ├─ 配置文件yml（feign.mock.responses.{key}）   ← order=10，先查
-    └─ 本地文件（classpath:mock/{key}.json） ← order=20，后查
+    ├─ 配置文件（feign.mock.responses.{key}）  ← order=10，先查
+    └─ 本地文件（classpath:mock/{key}.json）   ← order=20，后查
 ```
 
 ### ① 自定义 Provider
@@ -118,12 +117,13 @@ public class UserMockProvider implements MockDataProvider {
 UserDTO getSpecialUser(Long userId);
 ```
 
-文件放置在 `src/main/resources/mock/user/special-case.json`（或 test/resources）。
+文件放置在 `src/main/resources/mock/user/special-case.json`。
 
-### ③ key 自动查找
+### ③ key 查找
+
+**配置文件方式：**
 
 ```yaml
-# your-service-dev.yml
 feign:
   mock:
     enabled: true
@@ -132,18 +132,19 @@ feign:
       userFeignClient.listUsers: '[{"userId":1},{"userId":2}]'
 ```
 
-**本地文件（开发兜底）：**
+**本地文件方式：**
 
 ```
 src/main/resources/
 └── mock/
-    ├── userFeignClient/
-    │   └── getUserById.json
-    └── user-service/
+    └── userFeignClient/
+        ├── getUserById.json
         └── listUsers.json
 ```
 
-key 转换规则：`userFeignClient.getUserById` → `classpath:mock/userFeignClient/getUserById.json`---
+key 转换规则：`userFeignClient.getUserById` → `classpath:mock/userFeignClient/getUserById.json`
+
+---
 
 ## 高级用法
 
@@ -173,7 +174,7 @@ public class RedisMockDataSource implements MockDataSource {
 
     @Override
     public int getOrder() {
-        return 5;  // 比 Nacos(10) 更高优先级
+        return 5;  // 数字越小优先级越高，内置配置文件数据源为 10
     }
 }
 ```
@@ -196,9 +197,3 @@ public class RedisMockDataSource implements MockDataSource {
 | Spring Boot | 2.x / 3.x |
 | JDK | 1.8+ |
 | Spring Cloud OpenFeign | 3.x（Spring Boot 2.x）/ 4.x（Spring Boot 3.x） |
-
-> **注意：** `spring-cloud-alibaba-dependencies` 仅在使用 Nacos 热更新时需要，不是必须依赖。
-> 如果你的项目不使用 Nacos，只需引入 `spring-cloud-openfeign-core` 即可。
-> Spring Boot 2.x 通过 `spring.factories` 加载自动配置，Spring Boot 3.x 通过
-> `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 加载，
-> 本 starter 两个文件均已提供，无需额外配置。
