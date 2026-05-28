@@ -11,7 +11,6 @@
 | 特性 | 说明 |
 |------|------|
 | 三种数据源 | 自定义 Provider > 指定 JSON 文件 > key 自动查找（配置文件/本地文件） |
-| 运行时热切换 | 配合 Nacos `@RefreshScope`，无需重启即可切换 Mock 数据 |
 | 零生产侵入 | `feign.mock.enabled=false`（默认）时切面不工作，无任何额外开销 |
 | 可扩展数据源 | 实现 `MockDataSource` 接口并注册为 Bean，自动接入加载链路 |
 | 方法级粒度 | 同一 Feign 接口可部分方法 Mock、部分方法真实调用 |
