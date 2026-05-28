@@ -72,17 +72,17 @@ public class LocalFileMockDataSource implements MockDataSource {
         try {
             Resource resource = resourceLoader.getResource(path);
             if (!resource.exists()) {
-                log.debug("[MockFile] 文件不存在: {}", path);
+                log.debug("[MockFile] File not found: {}", path);
                 return Optional.empty();
             }
             String content = StreamUtils.copyToString(
                 resource.getInputStream(), StandardCharsets.UTF_8);
-            log.debug("[MockFile] 加载成功: {}", path);
+            log.debug("[MockFile] Loaded successfully: {}", path);
             Optional<String> result = Optional.of(content);
             fileCache.put(path, result);
             return result;
         } catch (IOException e) {
-            log.warn("[MockFile] 读取异常: {} - {}", path, e.getMessage());
+            log.warn("[MockFile] Failed to read file: {} - {}", path, e.getMessage());
             return Optional.empty();
         }
     }
@@ -92,7 +92,7 @@ public class LocalFileMockDataSource implements MockDataSource {
      */
     public void clearCache() {
         fileCache.clear();
-        log.info("[MockFile] 文件缓存已清除");
+        log.info("[MockFile] File cache cleared");
     }
 
     @Override
