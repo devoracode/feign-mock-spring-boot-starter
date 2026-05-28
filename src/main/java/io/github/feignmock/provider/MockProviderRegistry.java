@@ -57,8 +57,8 @@ public class MockProviderRegistry implements ApplicationContextAware {
             } catch (Exception e) {
                 throw new MockDataException(
                         String.format(
-                                "无法实例化 MockDataProvider [%s]。" +
-                                        "请确保该类有公开无参构造，或将其注册为 Spring Bean。",
+                                "Failed to instantiate MockDataProvider [%s]. " +
+                                        "Ensure the class has a public no-arg constructor, or register it as a Spring Bean.",
                                 cls.getName()), e);
             }
         });

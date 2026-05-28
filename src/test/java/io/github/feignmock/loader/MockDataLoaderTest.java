@@ -87,7 +87,7 @@ class MockDataLoaderTest {
     void loadByFile_notFound_throwsException() {
         assertThatThrownBy(() -> loader.loadByFile("mock/not/exist.json", UserDTO.class))
             .isInstanceOf(MockDataException.class)
-            .hasMessageContaining("Mock 文件未找到");
+            .hasMessageContaining("Mock file not found");
     }
 
     // ── findJsonByKey ────────────────────────────────────────────────────────

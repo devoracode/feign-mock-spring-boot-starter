@@ -60,20 +60,20 @@ public class MockMethodAspect {
         Method method = signature.getMethod();
         String logTag = resolveLogTag(mockMethod, method);
 
-        log.info("[MockAOP] 拦截 [{}] | 数据源={}{}",
+        log.info("[MockAOP] Intercepted [{}] | source={}{}", 
             logTag,
             resolveSourceLabel(mockMethod, method),
             StringUtils.hasText(mockMethod.description())
-                ? " | 描述=" + mockMethod.description() : "");
+                ? " | desc=" + mockMethod.description() : "");
 
         try {
             return doResolve(pjp, method, mockMethod);
         } catch (MockDataException e) {
             if (mockMethod.failFast()) {
-                log.error("[MockAOP] [{}] 数据加载失败: {}", logTag, e.getMessage());
+                log.error("[MockAOP] [{}] Failed to load mock data: {}", logTag, e.getMessage());
                 throw e;
             }
-            log.warn("[MockAOP] [{}] 数据加载失败，failFast=false，返回 null: {}",
+            log.warn("[MockAOP] [{}] Failed to load mock data, failFast=false, returning null: {}",
                 logTag, e.getMessage());
             return null;
         }
@@ -87,14 +87,14 @@ public class MockMethodAspect {
 
         // ── 优先级 1：自定义 Provider ────────────────────────────────
         if (mockMethod.provider() != MockDataProvider.None.class) {
-            log.debug("[MockAOP] 使用 Provider: {}", mockMethod.provider().getSimpleName());
+            log.debug("[MockAOP] Using provider: {}", mockMethod.provider().getSimpleName());
             MockDataProvider provider = providerRegistry.getProvider(mockMethod.provider());
             return provider.provide(pjp, method);
         }
 
         // ── 优先级 2：指定 JSON 文件 ─────────────────────────────────
         if (StringUtils.hasText(mockMethod.jsonFile())) {
-            log.debug("[MockAOP] 使用 JSON 文件: {}", mockMethod.jsonFile());
+            log.debug("[MockAOP] Using JSON file: {}", mockMethod.jsonFile());
             return mockDataLoader.loadByFile(mockMethod.jsonFile(), returnType);
         }
 
@@ -102,7 +102,7 @@ public class MockMethodAspect {
         String key = StringUtils.hasText(mockMethod.value())
             ? mockMethod.value()
             : buildAutoKey(method);
-        log.debug("[MockAOP] 使用 key 查找: {}", key);
+        log.debug("[MockAOP] Using key lookup: {}", key);
         return mockDataLoader.loadByKey(key, returnType);
     }
 

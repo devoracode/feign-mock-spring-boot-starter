@@ -72,9 +72,9 @@ public class MockDataLoader {
             .filter(s -> s instanceof LocalFileMockDataSource)
             .map(s -> (LocalFileMockDataSource) s)
             .findFirst()
-            .orElseThrow(() -> new MockDataException("未找到 LocalFileMockDataSource，无法加载文件: " + filePath));
+            .orElseThrow(() -> new MockDataException("LocalFileMockDataSource not found, cannot load file: " + filePath));
         String json = localFileSource.loadByFilePath(filePath).orElseThrow(() ->
-            new MockDataException("Mock 文件未找到: classpath:" + filePath));
+            new MockDataException("Mock file not found: classpath:" + filePath));
         return deserialize(json, returnType);
     }
 
@@ -88,7 +88,7 @@ public class MockDataLoader {
         for (MockDataSource source : dataSources) {
             Optional<String> result = source.findByKey(key);
             if (result.isPresent()) {
-                log.debug("[MockLoader] key={} 命中数据源: {}", key,
+                log.debug("[MockLoader] key={} matched data source: {}", key,
                     source.getClass().getSimpleName());
                 return result;
             }
@@ -102,15 +102,15 @@ public class MockDataLoader {
             return objectMapper.readValue(json, javaType);
         } catch (Exception e) {
             throw new MockDataException(
-                "Mock 数据反序列化失败，请检查 JSON 格式与返回类型是否匹配。原因: " + e.getMessage(), e);
+                "Failed to deserialize mock data, please check JSON format and return type. Cause: " + e.getMessage(), e);
         }
     }
 
     private String buildNotFoundMessage(String key) {
         return String.format(
-            "Mock 数据未找到，key=[%s]%n" +
-            "  · 配置: feign.mock.responses.%s%n" +
-            "  · 本地文件:   classpath:mock/%s.json",
+            "Mock data not found, key=[%s]%n" +
+            "  · config: feign.mock.responses.%s%n" +
+            "  · local file: classpath:mock/%s.json",
             key, key, key.replace('.', '/'));
     }
 }

@@ -7,10 +7,10 @@
 
     <groupId>io.github.devoracode</groupId>
     <artifactId>feign-mock-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
-    <!-- ★ 必填：项目描述 -->
+    <!-- Required: project metadata -->
     <name>feign-mock-spring-boot-starter</name>
     <description>
         A Spring Boot starter that enables annotation-driven Mock support for OpenFeign clients.
@@ -18,7 +18,7 @@
     </description>
     <url>https://github.com/devoracode/feign-mock-spring-boot-starter</url>
 
-    <!-- ★ 必填：开源协议 -->
+    <!-- Required: license -->
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -26,7 +26,7 @@
         </license>
     </licenses>
 
-    <!-- ★ 必填：开发者信息 -->
+    <!-- Required: developer info -->
     <developers>
         <developer>
             <id>devoracode</id>
@@ -35,7 +35,7 @@
         </developer>
     </developers>
 
-    <!-- ★ 必填：SCM 源码地址 -->
+    <!-- Required: SCM info -->
     <scm>
         <connection>scm:git:git://github.com/devoracode/feign-mock-spring-boot-starter.git</connection>
         <developerConnection>scm:git:ssh://github.com/devoracode/feign-mock-spring-boot-starter.git</developerConnection>
@@ -79,13 +79,13 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Boot AutoConfigure（必须，provided 避免传递依赖污染） -->
+        <!-- Spring Boot AutoConfigure (required; avoids transitive dependency pollution) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
-        <!-- 生成 spring-configuration-metadata.json，IDE 配置提示 -->
+        <!-- Generates spring-configuration-metadata.json for IDE config hints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -108,14 +108,14 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!-- Lombok（optional，仅编译期） -->
+        <!-- Lombok (optional, compile-time only) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- 测试 -->
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -164,7 +164,7 @@
                 </executions>
             </plugin>
 
-            <!-- ★ 必填：javadoc jar -->
+            <!-- Javadoc jar (required for Maven Central publishing) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -182,7 +182,7 @@
                 </executions>
             </plugin>
 
-            <!-- ★ 必填：GPG 签名 -->
+            <!-- GPG signing (required for Maven Central publishing) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -196,7 +196,7 @@
                 </executions>
             </plugin>
 
-            <!-- ★ 必填：2025 年新发布插件（替代旧的 nexus-staging-maven-plugin） -->
+            <!-- Maven Central publishing plugin (replaces nexus-staging-maven-plugin) -->
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
@@ -204,7 +204,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
-                    <!-- true=上传后自动发布；false=上传后需手动在 Portal 点击 Publish -->
+                    <!-- true=auto publish after upload; false=manually publish via Portal -->
                     <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>

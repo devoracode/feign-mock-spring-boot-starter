@@ -103,7 +103,7 @@ public class MockAutoConfiguration {
                                          ObjectProvider<MockDataSource> dataSourceProvider) {
         List<MockDataSource> sources = new ArrayList<>();
         dataSourceProvider.forEach(sources::add);
-        log.info("[FeignMock] 已注册数据源: {}个", sources.size());
+        log.info("[FeignMock] Registered {} data source(s)", sources.size());
         return new MockDataLoader(mockObjectMapper, sources);
     }
 
@@ -118,7 +118,7 @@ public class MockAutoConfiguration {
     public MockMethodAspect mockMethodAspect(MockDataLoader mockDataLoader,
                                               MockProviderRegistry mockProviderRegistry,
                                               MockProperties mockProperties) {
-        log.info("[FeignMock] Mock 拦截器已启动，全局开关=enabled");
+        log.info("[FeignMock] Mock interceptor started, global switch=enabled");
         return new MockMethodAspect(mockDataLoader, mockProviderRegistry, mockProperties);
     }
 }
