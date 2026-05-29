@@ -2,6 +2,7 @@ package io.github.feignmock.aspect;
 
 import io.github.feignmock.annotation.MockMethod;
 import io.github.feignmock.config.MockProperties;
+import io.github.feignmock.el.MockElEvaluator;
 import io.github.feignmock.exception.MockDataException;
 import io.github.feignmock.loader.MockDataLoader;
 import io.github.feignmock.provider.MockDataProvider;
@@ -24,7 +25,7 @@ import java.lang.reflect.Type;
  * <ol>
  *   <li>{@link MockMethod#provider()} 自定义 Provider</li>
  *   <li>{@link MockMethod#jsonFile()} 指定 JSON 文件</li>
- *   <li>{@link MockMethod#value()} key 查找（Nacos → 本地文件）</li>
+ *   <li>{@link MockMethod#value()} key 查找配置文件（feign.mock.responses）</li>
  * </ol>
  *
  * <p>仅在 {@code feign.mock.enabled=true} 时激活（由自动配置条件控制）。
@@ -39,13 +40,16 @@ public class MockMethodAspect {
 
     private final MockDataLoader mockDataLoader;
     private final MockProviderRegistry providerRegistry;
+    private final MockElEvaluator elEvaluator;
     private final MockProperties mockProperties;
 
     public MockMethodAspect(MockDataLoader mockDataLoader,
                             MockProviderRegistry providerRegistry,
+                            MockElEvaluator elEvaluator,
                             MockProperties mockProperties) {
         this.mockDataLoader = mockDataLoader;
         this.providerRegistry = providerRegistry;
+        this.elEvaluator = elEvaluator;
         this.mockProperties = mockProperties;
     }
 
@@ -94,8 +98,14 @@ public class MockMethodAspect {
 
         // ── 优先级 2：指定 JSON 文件 ─────────────────────────────────
         if (StringUtils.hasText(mockMethod.jsonFile())) {
-            log.debug("[MockAOP] Using JSON file: {}", mockMethod.jsonFile());
-            return mockDataLoader.loadByFile(mockMethod.jsonFile(), returnType);
+            String filePath = mockMethod.jsonFile();
+            if (MockElEvaluator.isExpression(filePath)) {
+                filePath = elEvaluator.evaluate(filePath, pjp);
+                log.debug("[MockAOP] EL expression resolved to file: {}", filePath);
+            } else {
+                log.debug("[MockAOP] Using JSON file: {}", filePath);
+            }
+            return mockDataLoader.loadByFile(filePath, returnType);
         }
 
         // ── 优先级 3：key 查找（配置yml(feign.mock.responses) → 本地文件） ────────────────────
