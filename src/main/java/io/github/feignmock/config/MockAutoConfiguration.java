@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.feignmock.aspect.MockMethodAspect;
+import io.github.feignmock.el.MockElEvaluator;
 import io.github.feignmock.loader.LocalFileMockDataSource;
 import io.github.feignmock.loader.MockDataLoader;
 import io.github.feignmock.loader.MockDataSource;
@@ -114,11 +115,18 @@ public class MockAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(MockElEvaluator.class)
+    public MockElEvaluator mockElEvaluator() {
+        return new MockElEvaluator();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(MockMethodAspect.class)
     public MockMethodAspect mockMethodAspect(MockDataLoader mockDataLoader,
                                               MockProviderRegistry mockProviderRegistry,
+                                              MockElEvaluator mockElEvaluator,
                                               MockProperties mockProperties) {
         log.info("[FeignMock] Mock interceptor started, global switch=enabled");
-        return new MockMethodAspect(mockDataLoader, mockProviderRegistry, mockProperties);
+        return new MockMethodAspect(mockDataLoader, mockProviderRegistry, mockElEvaluator, mockProperties);
     }
 }

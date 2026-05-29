@@ -25,7 +25,7 @@
 <dependency>
     <groupId>io.github.devoracode</groupId>
     <artifactId>feign-mock-spring-boot-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -146,6 +146,54 @@ key 转换规则：`userFeignClient.getUserById` → `classpath:mock/userFeignCl
 ---
 
 ## 高级用法
+
+### jsonFile EL 表达式（#switch 动态选择文件）
+
+当 `@MockMethod(jsonFile = ...)` 的值以 `#` 开头时，会被识别为 Spring SpEL 并在运行时求值，得到最终要读取的 JSON 文件路径（同时支持 `#...` 与 `#{...}` 两种写法）。
+
+内置函数 `#switch(...)`，用于根据方法入参动态选择不同的 mock 文件：
+
+```java
+// 根据入参 type 决定读取哪个 JSON 文件
+@MockMethod(jsonFile = "#switch(#type,'A','mock/el/type_a.json','B','mock/el/type_b.json','mock/el/default.json')")
+UserDTO getByType(String type);
+```
+
+#### #switch 语法
+
+```
+#switch(<参数引用>, '<case1>', '<file1>', '<case2>', '<file2>', ..., '<defaultFile>')
+```
+
+- 第 1 个参数：参数引用表达式（见下方“参数引用规则”）
+- 后续参数：成对出现的 `case 值` 与 `文件路径`
+- 最后可选：默认文件路径（不提供默认值且无 case 命中时会抛异常）
+
+#### 参数引用规则
+
+- `#paramName`：按参数名引用（需要编译保留参数名，或使用 `-parameters`）
+- `#p0` / `#p1`：按参数下标引用（0-based，始终可用）
+- 支持嵌套取值：`#paramName.field`、`#p0.userType`、`#req.user.type`
+- 支持包含判断：`#req.types.contains('A')`（集合/String），`#contains(#req.types,'A')`（数组/集合/String；返回 `true/false`，通常配合 `case='true'` 使用）
+
+取值对象类型支持：
+
+- Map：按 key 取值，如 `#req.userType`
+- Java 对象：优先调用 getter（`getXxx()/isXxx()`），否则反射字段
+- String：仅作为普通字符串使用（不支持在 String 上通过 `.field` 取嵌套字段）
+
+#### 文件路径写法
+
+表达式返回值会被当作 classpath 相对路径读取，常见写法：
+
+- `mock/el/type_a.json`
+- 也可以返回带前缀的路径：`classpath:mock/el/type_a.json`
+
+#### 注意点
+
+- `#switch` 的 case 比较基于字符串；例如入参为 `1L` 时，对应 case 写成 `'1'`
+- 出于安全考虑，表达式能力做了限制：不支持 `T(...)`、`new`、`@bean` 等用法，仅放行 `contains` 方法调用
+- 表达式求值失败（语法错误/越权调用/无 default 且未命中等）会抛出 `MockDataException`
 
 ### failFast 控制
 
