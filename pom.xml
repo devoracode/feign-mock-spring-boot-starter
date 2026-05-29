@@ -7,7 +7,7 @@
 
     <groupId>io.github.devoracode</groupId>
     <artifactId>feign-mock-spring-boot-starter</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <!-- Required: project metadata -->
@@ -214,7 +214,7 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <!-- true=auto publish after upload; false=manually publish via Portal -->
-                    <autoPublish>false</autoPublish>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
         </plugins>

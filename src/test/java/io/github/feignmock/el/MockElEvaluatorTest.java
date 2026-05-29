@@ -141,6 +141,30 @@ class MockElEvaluatorTest {
         }
 
         @Test
+        @DisplayName("#choose：多个条件按顺序命中")
+        void choose_multiConditions() {
+            Map<String, Object> req = new HashMap<>();
+            req.put("types", Arrays.asList("B"));
+            ProceedingJoinPoint pjp = mockPjp(new Object[]{req}, new String[]{"req"});
+
+            String result = evaluator.evaluate(
+                "#choose(#contains(#req.types,'A'),'mock/a.json', #contains(#req.types,'B'),'mock/b.json', 'mock/d.json')", pjp);
+            assertThat(result).isEqualTo("mock/b.json");
+        }
+
+        @Test
+        @DisplayName("#choose：无命中走默认")
+        void choose_default() {
+            Map<String, Object> req = new HashMap<>();
+            req.put("types", Arrays.asList("C"));
+            ProceedingJoinPoint pjp = mockPjp(new Object[]{req}, new String[]{"req"});
+
+            String result = evaluator.evaluate(
+                "#choose(#contains(#req.types,'A'),'mock/a.json', #contains(#req.types,'B'),'mock/b.json', 'mock/d.json')", pjp);
+            assertThat(result).isEqualTo("mock/d.json");
+        }
+
+        @Test
         @DisplayName("String 参数不支持 .field 取值")
         void stringParamWithField_throws() {
             String body = "{\"userType\":\"A\",\"name\":\"test\"}";

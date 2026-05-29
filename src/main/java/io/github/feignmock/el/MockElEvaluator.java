@@ -171,6 +171,8 @@ public class MockElEvaluator {
             context.registerFunction("switch", switchMethod);
             Method containsMethod = MockSpelFunctions.class.getMethod("containsOf", Object.class, Object.class);
             context.registerFunction("contains", containsMethod);
+            Method chooseMethod = MockSpelFunctions.class.getMethod("chooseOf", Object[].class);
+            context.registerFunction("choose", chooseMethod);
         } catch (NoSuchMethodException e) {
             throw new MockDataException("Failed to register SpEL function", e);
         }
@@ -256,6 +258,42 @@ public class MockElEvaluator {
                 return false;
             }
             return false;
+        }
+
+        public static String chooseOf(Object... args) {
+            if (args == null || args.length == 0) {
+                throw new MockDataException("#choose requires arguments: (cond1, file1, cond2, file2, ..., defaultFile)");
+            }
+
+            int i = 0;
+            while (i + 1 < args.length) {
+                if (isTruthy(args[i])) {
+                    Object file = args[i + 1];
+                    return file == null ? null : String.valueOf(file);
+                }
+                i += 2;
+            }
+
+            if (i < args.length) {
+                Object def = args[i];
+                return def == null ? null : String.valueOf(def);
+            }
+
+            throw new MockDataException("No condition matched in #choose, and no default provided.");
+        }
+
+        private static boolean isTruthy(Object value) {
+            if (value == null) {
+                return false;
+            }
+            if (value instanceof Boolean) {
+                return (Boolean) value;
+            }
+            if (value instanceof Number) {
+                return ((Number) value).doubleValue() != 0D;
+            }
+            String s = String.valueOf(value).trim();
+            return "true".equalsIgnoreCase(s);
         }
     }
 
