@@ -1,4 +1,4 @@
-package io.github.feignmock.loader;
+package io.github.devoracode.feignmock.loader;
 
 import java.util.Optional;
 

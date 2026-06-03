@@ -1,6 +1,6 @@
-package io.github.feignmock.el;
+package io.github.devoracode.feignmock.el;
 
-import io.github.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.exception.MockDataException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;

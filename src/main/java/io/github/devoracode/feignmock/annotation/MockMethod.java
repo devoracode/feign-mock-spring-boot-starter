@@ -1,7 +1,7 @@
-package io.github.feignmock.annotation;
+package io.github.devoracode.feignmock.annotation;
 
-import io.github.feignmock.provider.MockDataProvider;
-import io.github.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.provider.MockDataProvider;
+import io.github.devoracode.feignmock.exception.MockDataException;
 
 import java.lang.annotation.*;
 

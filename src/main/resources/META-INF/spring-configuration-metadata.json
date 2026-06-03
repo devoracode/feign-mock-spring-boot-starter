@@ -2,7 +2,7 @@
   "groups": [
     {
       "name": "feign.mock",
-      "type": "io.github.feignmock.config.MockProperties",
+      "type": "io.github.devoracode.feignmock.config.MockProperties",
       "description": "feign-mock-starter 全局配置"
     }
   ],

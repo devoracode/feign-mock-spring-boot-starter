@@ -1,6 +1,6 @@
-package io.github.feignmock.loader;
+package io.github.devoracode.feignmock.loader;
 
-import io.github.feignmock.config.MockProperties;
+import io.github.devoracode.feignmock.config.MockProperties;
 
 import java.util.Optional;
 

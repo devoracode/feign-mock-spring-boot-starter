@@ -1,4 +1,4 @@
-package io.github.feignmock.loader;
+package io.github.devoracode.feignmock.loader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

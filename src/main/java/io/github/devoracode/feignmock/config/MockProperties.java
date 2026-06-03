@@ -1,6 +1,6 @@
-package io.github.feignmock.config;
+package io.github.devoracode.feignmock.config;
 
-import io.github.feignmock.annotation.MockMethod;
+import io.github.devoracode.feignmock.annotation.MockMethod;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

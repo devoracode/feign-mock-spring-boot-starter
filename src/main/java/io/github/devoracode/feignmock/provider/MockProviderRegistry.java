@@ -1,6 +1,6 @@
-package io.github.feignmock.provider;
+package io.github.devoracode.feignmock.provider;
 
-import io.github.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.exception.MockDataException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

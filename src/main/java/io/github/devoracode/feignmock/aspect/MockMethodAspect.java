@@ -1,12 +1,12 @@
-package io.github.feignmock.aspect;
+package io.github.devoracode.feignmock.aspect;
 
-import io.github.feignmock.annotation.MockMethod;
-import io.github.feignmock.config.MockProperties;
-import io.github.feignmock.el.MockElEvaluator;
-import io.github.feignmock.exception.MockDataException;
-import io.github.feignmock.loader.MockDataLoader;
-import io.github.feignmock.provider.MockDataProvider;
-import io.github.feignmock.provider.MockProviderRegistry;
+import io.github.devoracode.feignmock.annotation.MockMethod;
+import io.github.devoracode.feignmock.config.MockProperties;
+import io.github.devoracode.feignmock.el.MockElEvaluator;
+import io.github.devoracode.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.loader.MockDataLoader;
+import io.github.devoracode.feignmock.provider.MockDataProvider;
+import io.github.devoracode.feignmock.provider.MockProviderRegistry;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

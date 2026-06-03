@@ -1,8 +1,8 @@
-package io.github.feignmock.loader;
+package io.github.devoracode.feignmock.loader;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.exception.MockDataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package io.github.feignmock.provider;
+package io.github.devoracode.feignmock.provider;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 

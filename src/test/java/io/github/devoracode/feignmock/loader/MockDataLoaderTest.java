@@ -1,17 +1,16 @@
-package io.github.feignmock.loader;
+package io.github.devoracode.feignmock.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.github.feignmock.TestFixtures.UserDTO;
-import io.github.feignmock.config.MockProperties;
-import io.github.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.TestFixtures.UserDTO;
+import io.github.devoracode.feignmock.config.MockProperties;
+import io.github.devoracode.feignmock.exception.MockDataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.DefaultResourceLoader;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

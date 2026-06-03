@@ -1,8 +1,8 @@
-package io.github.feignmock.el;
+package io.github.devoracode.feignmock.el;
 
-import io.github.feignmock.TestFixtures.UserDTO;
-import io.github.feignmock.annotation.MockMethod;
-import io.github.feignmock.config.MockAutoConfiguration;
+import io.github.devoracode.feignmock.TestFixtures.UserDTO;
+import io.github.devoracode.feignmock.annotation.MockMethod;
+import io.github.devoracode.feignmock.config.MockAutoConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
-package io.github.feignmock;
+package io.github.devoracode.feignmock;
 
-import io.github.feignmock.annotation.MockMethod;
-import io.github.feignmock.provider.MockDataProvider;
+import io.github.devoracode.feignmock.annotation.MockMethod;
+import io.github.devoracode.feignmock.provider.MockDataProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

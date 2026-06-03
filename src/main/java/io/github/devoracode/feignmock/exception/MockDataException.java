@@ -1,4 +1,6 @@
-package io.github.feignmock.exception;
+package io.github.devoracode.feignmock.exception;
+
+import io.github.devoracode.feignmock.provider.MockDataProvider;
 
 /**
  * Mock 数据相关异常。
@@ -8,7 +10,7 @@ package io.github.feignmock.exception;
  *   <li>指定 key 在所有数据源中均未找到</li>
  *   <li>指定 JSON 文件不存在</li>
  *   <li>JSON 反序列化失败</li>
- *   <li>{@link io.github.feignmock.provider.MockDataProvider} 无法实例化</li>
+ *   <li>{@link MockDataProvider} 无法实例化</li>
  * </ul>
  *
  * @author Wenjie

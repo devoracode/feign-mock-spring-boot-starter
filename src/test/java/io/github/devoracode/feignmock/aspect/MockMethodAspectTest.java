@@ -1,11 +1,11 @@
-package io.github.feignmock.aspect;
+package io.github.devoracode.feignmock.aspect;
 
-import io.github.feignmock.TestFixtures.DynamicUserProvider;
-import io.github.feignmock.TestFixtures.UserDTO;
-import io.github.feignmock.TestFixtures.UserFeignClient;
-import io.github.feignmock.annotation.MockMethod;
-import io.github.feignmock.config.MockAutoConfiguration;
-import io.github.feignmock.config.MockProperties;
+import io.github.devoracode.feignmock.TestFixtures.DynamicUserProvider;
+import io.github.devoracode.feignmock.TestFixtures.UserDTO;
+import io.github.devoracode.feignmock.TestFixtures.UserFeignClient;
+import io.github.devoracode.feignmock.annotation.MockMethod;
+import io.github.devoracode.feignmock.config.MockAutoConfiguration;
+import io.github.devoracode.feignmock.config.MockProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
