@@ -3,26 +3,19 @@ package io.github.devoracode.feignmock.exception;
 import io.github.devoracode.feignmock.provider.MockDataProvider;
 
 /**
- * Mock 数据相关异常。
+ * Exception thrown when mock data cannot be resolved or deserialized.
  *
- * <p>在以下情况下抛出：
- * <ul>
- *   <li>指定 key 在所有数据源中均未找到</li>
- *   <li>指定 JSON 文件不存在</li>
- *   <li>JSON 反序列化失败</li>
- *   <li>{@link MockDataProvider} 无法实例化</li>
- * </ul>
- *
- * @author Wenjie
+ * @author Wenjie Liu
  * @since 1.0.0
  */
 public class MockDataException extends RuntimeException {
 
-    public MockDataException(String message) {
-        super(message);
-    }
+	public MockDataException(String message) {
+		super(message);
+	}
 
-    public MockDataException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MockDataException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

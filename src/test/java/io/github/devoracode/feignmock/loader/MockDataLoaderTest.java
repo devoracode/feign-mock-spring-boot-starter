@@ -1,99 +1,94 @@
 package io.github.devoracode.feignmock.loader;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import io.github.devoracode.feignmock.TestFixtures.UserDTO;
-import io.github.devoracode.feignmock.config.MockProperties;
 import io.github.devoracode.feignmock.exception.MockDataException;
+import io.github.devoracode.feignmock.mock.MockDataLoader;
+import io.github.devoracode.feignmock.mock.MockDataSource;
+import io.github.devoracode.feignmock.mock.ResourceMockDataSource;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.core.io.DefaultResourceLoader;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("MockDataLoader 单元测试")
+@DisplayName("MockDataLoader")
 class MockDataLoaderTest {
 
-    private MockDataLoader loader;
-    private MockProperties mockProperties;
-    private LocalFileMockDataSource localFileMockDataSource;
+	private MockDataLoader loader;
 
-    @BeforeEach
-    void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .registerModule(new JavaTimeModule());
+	@BeforeEach
+	void setUp() {
+		ObjectMapper objectMapper = new ObjectMapper()
+				.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+				.registerModule(new JavaTimeModule());
 
-        mockProperties = new MockProperties();
-        mockProperties.setEnabled(true);
+		ResourceMockDataSource resourceMockDataSource = new ResourceMockDataSource(new DefaultResourceLoader());
+		List<MockDataSource> sources = Collections.singletonList(resourceMockDataSource);
+		this.loader = new MockDataLoader(objectMapper, sources);
+	}
 
-        localFileMockDataSource = new LocalFileMockDataSource(new DefaultResourceLoader());
-        List<MockDataSource> sources = Collections.singletonList(localFileMockDataSource);
-        loader = new MockDataLoader(objectMapper, sources);
-    }
+	@Test
+	@DisplayName("loadByKey resolves a single object from classpath resources")
+	void loadByKeyLocalFileSingleObject() {
+		UserDTO user = this.loader.loadByKey("userClient.getUserById", UserDTO.class);
 
-    // ── loadByKey ────────────────────────────────────────────────────────────
+		assertThat(user).isNotNull();
+		assertThat(user.getUsername()).isEqualTo("file_mock_user");
+		assertThat(user.getStatus()).isEqualTo("ACTIVE");
+	}
 
-    @Test
-    @DisplayName("loadByKey：本地文件命中，正确反序列化单个对象")
-    void loadByKey_localFile_singleObject() {
-        UserDTO user = loader.loadByKey("userClient.getUserById", UserDTO.class);
+	@Test
+	@DisplayName("loadByKey resolves generic list responses")
+	void loadByKeyLocalFileListGeneric() throws Exception {
+		java.lang.reflect.Type listType = new com.fasterxml.jackson.core.type.TypeReference<List<UserDTO>>() {
+		}.getType();
 
-        assertThat(user).isNotNull();
-        assertThat(user.getUsername()).isEqualTo("file_mock_user");
-        assertThat(user.getStatus()).isEqualTo("ACTIVE");
-    }
+		List<UserDTO> users = this.loader.loadByKey("userClient.listUsers", listType);
 
-    @Test
-    @DisplayName("loadByKey：本地文件命中，正确反序列化 List 泛型")
-    void loadByKey_localFile_listGeneric() throws Exception {
-        java.lang.reflect.Type listType =
-            new com.fasterxml.jackson.core.type.TypeReference<List<UserDTO>>() {}.getType();
+		assertThat(users).hasSize(2);
+		assertThat(users.get(0).getUsername()).isEqualTo("user_one");
+		assertThat(users.get(1).getUsername()).isEqualTo("user_two");
+	}
 
-        List<UserDTO> users = loader.loadByKey("userClient.listUsers", listType);
+	@Test
+	@DisplayName("loadByKey throws when the key cannot be resolved")
+	void loadByKeyNotFoundThrowsException() {
+		assertThatThrownBy(() -> this.loader.loadByKey("not.exist.key", UserDTO.class))
+				.isInstanceOf(MockDataException.class)
+				.hasMessageContaining("not.exist.key");
+	}
 
-        assertThat(users).hasSize(2);
-        assertThat(users.get(0).getUsername()).isEqualTo("user_one");
-        assertThat(users.get(1).getUsername()).isEqualTo("user_two");
-    }
+	@Test
+	@DisplayName("loadByFile resolves a resource by path")
+	void loadByFileSuccess() {
+		UserDTO user = this.loader.loadByFile("mock/userClient/getUserById.json", UserDTO.class);
 
-    @Test
-    @DisplayName("loadByKey：key 不存在时抛出 MockDataException")
-    void loadByKey_notFound_throwsException() {
-        assertThatThrownBy(() -> loader.loadByKey("not.exist.key", UserDTO.class))
-            .isInstanceOf(MockDataException.class)
-            .hasMessageContaining("not.exist.key");
-    }
+		assertThat(user.getUsername()).isEqualTo("file_mock_user");
+	}
 
-    // ── loadByFile ───────────────────────────────────────────────────────────
+	@Test
+	@DisplayName("loadByFile throws when the resource does not exist")
+	void loadByFileNotFoundThrowsException() {
+		assertThatThrownBy(() -> this.loader.loadByFile("mock/not/exist.json", UserDTO.class))
+				.isInstanceOf(MockDataException.class)
+				.hasMessageContaining("Mock file not found");
+	}
 
-    @Test
-    @DisplayName("loadByFile：指定路径正确加载")
-    void loadByFile_success() {
-        UserDTO user = loader.loadByFile(
-            "mock/userClient/getUserById.json", UserDTO.class);
+	@Test
+	@DisplayName("findJsonByKey returns empty when no source matches")
+	void findJsonByKeyAllMissReturnsEmpty() {
+		assertThat(this.loader.findJsonByKey("absolutely.not.exist")).isEmpty();
+	}
 
-        assertThat(user.getUsername()).isEqualTo("file_mock_user");
-    }
-
-    @Test
-    @DisplayName("loadByFile：文件不存在时抛出 MockDataException")
-    void loadByFile_notFound_throwsException() {
-        assertThatThrownBy(() -> loader.loadByFile("mock/not/exist.json", UserDTO.class))
-            .isInstanceOf(MockDataException.class)
-            .hasMessageContaining("Mock file not found");
-    }
-
-    // ── findJsonByKey ────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("findJsonByKey：所有数据源均无时返回 empty")
-    void findJsonByKey_allMiss_returnsEmpty() {
-        assertThat(loader.findJsonByKey("absolutely.not.exist")).isEmpty();
-    }
 }

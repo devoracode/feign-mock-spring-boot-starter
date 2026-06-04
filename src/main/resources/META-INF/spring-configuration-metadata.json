@@ -2,21 +2,21 @@
   "groups": [
     {
       "name": "feign.mock",
-      "type": "io.github.devoracode.feignmock.config.MockProperties",
-      "description": "feign-mock-starter 全局配置"
+      "type": "io.github.devoracode.feignmock.autoconfigure.FeignMockProperties",
+      "description": "Feign mock support."
     }
   ],
   "properties": [
     {
       "name": "feign.mock.enabled",
       "type": "java.lang.Boolean",
-      "description": "全局开关。true=启用 Mock 拦截，false=所有请求直接放行（默认）。建议仅在开发/测试环境开启。",
+      "description": "Whether Feign mock support is enabled.",
       "defaultValue": false
     },
     {
       "name": "feign.mock.responses",
       "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Mock 数据映射表。key 对应 @MockMethod value 或自动推导的 interfaceName.methodName，value 为 JSON 字符串。"
+      "description": "Mock response definitions keyed by mock data key."
     }
   ],
   "hints": [
@@ -25,11 +25,11 @@
       "values": [
         {
           "value": true,
-          "description": "启用 Mock，适用于开发/测试环境"
+          "description": "Enable Feign mock support for development and test environments."
         },
         {
           "value": false,
-          "description": "禁用 Mock（默认），适用于生产环境"
+          "description": "Disable Feign mock support."
         }
       ]
     }

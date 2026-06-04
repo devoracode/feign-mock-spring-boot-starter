@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.github.devoracode.feignmock.config.MockAutoConfiguration
+io.github.devoracode.feignmock.autoconfigure.FeignMockAutoConfiguration

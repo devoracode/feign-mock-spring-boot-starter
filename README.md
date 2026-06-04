@@ -8,7 +8,7 @@
 - 三种数据来源（按优先级）：
   - Provider：代码生成/动态返回（最高优先级）
   - jsonFile：读取 classpath JSON 文件（支持受限 SpEL 动态计算路径）
-  - key：按 key 在配置映射与本地文件中查找（自动推导 key）
+  - key：按 key 在配置映射与本地资源文件中查找（自动推导 key）
 - 可扩展：自定义 `MockDataSource` 即可接入数据源链
 - 失败策略：找不到数据可选择抛错或返回 null（`failFast`）
 
@@ -20,7 +20,7 @@
 <dependency>
   <groupId>io.github.devoracode</groupId>
   <artifactId>feign-mock-spring-boot-starter</artifactId>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 
@@ -58,12 +58,25 @@ public interface UserFeignClient {
 
 ## 工作原理（简述）
 
-- 当 `feign.mock.enabled=true` 时，starter 自动装配 `MockMethodAspect`，拦截所有标注了 `@MockMethod` 的方法
+- 当 `feign.mock.enabled=true` 时，starter 通过 `FeignMockAutoConfiguration` 自动装配 `FeignMockMethodAspect`，拦截所有标注了 `@MockMethod` 的方法
 - 每次拦截按以下优先级选择数据来源：
   1. `provider`（自定义 Provider）
-  2. `jsonFile`（读取文件；若是表达式则先计算路径）
-  3. `value`（key 查找：先配置映射，再本地文件）
-- 反序列化使用 Jackson，支持泛型返回值（例如 `List<UserDTO>`）
+  2. `jsonFile`（读取资源文件；若是表达式则先由 `MockExpressionEvaluator` 计算路径）
+  3. `value`（key 查找：先配置映射，再 classpath 资源文件）
+- 反序列化使用专用 `ObjectMapper`（Bean 名：`feignMockObjectMapper`），支持泛型返回值（例如 `List<UserDTO>`）
+
+## 项目结构
+
+```
+io.github.devoracode.feignmock/
+├── annotation/          @MockMethod
+├── autoconfigure/       FeignMockAutoConfiguration、FeignMockProperties
+├── aspect/              FeignMockMethodAspect
+├── mock/                MockDataLoader、MockDataSource 及内置实现
+├── spel/                MockExpressionEvaluator（受限 SpEL）
+├── provider/            MockDataProvider、MockDataProviderRegistry
+└── exception/           MockDataException
+```
 
 ## `@MockMethod` 参数说明
 
@@ -85,8 +98,8 @@ public interface UserFeignClient {
 @Component
 public class UserMockProvider implements MockDataProvider {
   @Override
-  public Object provide(ProceedingJoinPoint pjp, Method method) {
-    Long userId = (Long) pjp.getArgs()[0];
+  public Object provide(ProceedingJoinPoint joinPoint, Method method) {
+    Long userId = (Long) joinPoint.getArgs()[0];
     if (userId == 1L) {
       return UserDTO.builder().userId(1L).username("admin").build();
     }
@@ -96,7 +109,8 @@ public class UserMockProvider implements MockDataProvider {
 ```
 
 说明：
-- Provider 优先从 Spring 容器获取；若不是 Spring Bean，会尝试无参构造反射创建并缓存
+
+- Provider 由 `MockDataProviderRegistry` 解析：优先从 Spring 容器获取；若不是 Spring Bean，会尝试无参构造反射创建并缓存
 - Provider 可以直接抛业务异常，模拟下游报错
 
 ### 2）jsonFile：指定 JSON 文件
@@ -115,9 +129,11 @@ src/main/resources/
         └── getUserById.json
 ```
 
-### 3）key 查找：配置映射优先，本地文件兜底
+### 3）key 查找：配置映射优先，资源文件兜底
 
 #### 3.1 配置映射：`feign.mock.responses`
+
+由 `PropertiesMockDataSource` 提供（order=10）：
 
 ```yaml
 feign:
@@ -128,14 +144,14 @@ feign:
       userFeignClient.listUsers: '[{"userId":1},{"userId":2}]'
 ```
 
-#### 3.2 本地文件：`classpath:mock/{key}.json`
+#### 3.2 资源文件：`classpath:mock/{key}.json`
 
-key 会做路径转换：把 `.` 替换为 `/` 并追加 `.json`
+由 `ResourceMockDataSource` 提供（order=20）。key 会做路径转换：把 `.` 替换为 `/` 并追加 `.json`
 
 - key：`userFeignClient.getUserById`
 - 路径：`classpath:mock/userFeignClient/getUserById.json`
 
-本地文件读取成功后会做内存缓存，避免重复 IO。
+资源文件读取成功后会做内存缓存，避免重复 IO。
 
 ## jsonFile 的 SpEL（受限、安全模式）
 
@@ -213,11 +229,12 @@ UserDTO getOptionalUser(Long userId);
 
 ## 扩展：自定义数据源 `MockDataSource`
 
-实现 `MockDataSource` 并注册为 Spring Bean 后会自动加入数据源链，按 `getOrder()` 从小到大查找（数字越小优先级越高）。
+实现 `MockDataSource`（继承 Spring `Ordered`）并注册为 Spring Bean 后会自动加入数据源链，由 `MockDataLoader` 按 `getOrder()` 从小到大查找（数字越小优先级越高）。
 
 ```java
 @Component
 public class RedisMockDataSource implements MockDataSource {
+
   @Override
   public Optional<String> findByKey(String key) {
     return Optional.empty();
@@ -232,10 +249,16 @@ public class RedisMockDataSource implements MockDataSource {
 
 内置数据源优先级：
 
-- 配置映射（`feign.mock.responses`）：order=10
-- 本地文件（`classpath:mock/`）：order=20
+| 实现类 | order | 说明 |
+|--------|-------|------|
+| `PropertiesMockDataSource` | 10 | `feign.mock.responses` 配置映射 |
+| `ResourceMockDataSource` | 20 | `classpath:mock/` 资源文件 |
+
+自定义扩展建议从 order=30 开始，避免与内置数据源冲突。
 
 ## 配置项
+
+配置属性类：`FeignMockProperties`（前缀 `feign.mock`）
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -246,6 +269,7 @@ public class RedisMockDataSource implements MockDataSource {
 
 - JDK：项目编译目标为 1.8（运行时建议 8+）
 - Spring Boot：当前以 2.6.13 依赖管理为基准进行构建与测试；starter 同时提供 `spring.factories` 与 `AutoConfiguration.imports` 声明以适配不同 Boot 版本
+- 自动配置类：`io.github.devoracode.feignmock.autoconfigure.FeignMockAutoConfiguration`
 
 ## 常见问题
 
@@ -261,4 +285,8 @@ public class RedisMockDataSource implements MockDataSource {
 
 ### 3）日志里会打印什么？
 
-拦截时会记录被拦截方法与选择的数据来源（Provider/JsonFile/Key），便于排查实际走了哪条链路。
+拦截时会记录被拦截方法、数据来源（provider / resource / key）及可选的 `description`，便于排查实际走了哪条链路。示例：
+
+```
+Intercepted Feign mock method [UserFeignClient#getUserById] using key userFeignClient.getUserById
+```
