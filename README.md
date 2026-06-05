@@ -12,6 +12,11 @@
 - 可扩展：自定义 `MockDataSource` 即可接入数据源链
 - 失败策略：找不到数据可选择抛错或返回 null（`failFast`）
 
+## 环境要求
+
+- Java 8+
+- Spring Boot 2.2.x
+
 ## 快速开始
 
 ### 1）引入依赖
@@ -20,7 +25,7 @@
 <dependency>
   <groupId>io.github.devoracode</groupId>
   <artifactId>feign-mock-spring-boot-starter</artifactId>
-  <version>1.5.0</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 
@@ -64,19 +69,6 @@ public interface UserFeignClient {
   2. `jsonFile`（读取资源文件；若是表达式则先由 `MockExpressionEvaluator` 计算路径）
   3. `value`（key 查找：先配置映射，再 classpath 资源文件）
 - 反序列化使用专用 `ObjectMapper`（Bean 名：`feignMockObjectMapper`），支持泛型返回值（例如 `List<UserDTO>`）
-
-## 项目结构
-
-```
-io.github.devoracode.feignmock/
-├── annotation/          @MockMethod
-├── autoconfigure/       FeignMockAutoConfiguration、FeignMockProperties
-├── aspect/              FeignMockMethodAspect
-├── mock/                MockDataLoader、MockDataSource 及内置实现
-├── spel/                MockExpressionEvaluator（受限 SpEL）
-├── provider/            MockDataProvider、MockDataProviderRegistry
-└── exception/           MockDataException
-```
 
 ## `@MockMethod` 参数说明
 
