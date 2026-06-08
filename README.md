@@ -260,7 +260,7 @@ public class RedisMockDataSource implements MockDataSource {
 ## 兼容性与说明
 
 - JDK：项目编译目标为 1.8（运行时建议 8+）
-- Spring Boot：当前以 2.6.13 依赖管理为基准进行构建与测试；starter 同时提供 `spring.factories` 与 `AutoConfiguration.imports` 声明以适配不同 Boot 版本
+- Spring Boot：当前以 2.2.5 依赖管理为基准进行构建与测试；starter 同时提供 `spring.factories` 与 `AutoConfiguration.imports` 声明以适配不同 Boot 版本
 - 自动配置类：`io.github.devoracode.feignmock.autoconfigure.FeignMockAutoConfiguration`
 
 ## 常见问题

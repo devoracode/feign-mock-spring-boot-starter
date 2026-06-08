@@ -1,4 +1,4 @@
-package io.github.devoracode.feignmock.el;
+package io.github.devoracode.feignmock.spel;
 
 import io.github.devoracode.feignmock.TestFixtures.UserDTO;
 import io.github.devoracode.feignmock.annotation.MockMethod;

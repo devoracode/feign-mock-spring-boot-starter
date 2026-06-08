@@ -1,7 +1,5 @@
 package io.github.devoracode.feignmock.exception;
 
-import io.github.devoracode.feignmock.provider.MockDataProvider;
-
 /**
  * Exception thrown when mock data cannot be resolved or deserialized.
  *

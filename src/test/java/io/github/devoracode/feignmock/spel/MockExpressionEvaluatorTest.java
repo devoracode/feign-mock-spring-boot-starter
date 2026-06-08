@@ -1,7 +1,6 @@
-package io.github.devoracode.feignmock.el;
+package io.github.devoracode.feignmock.spel;
 
 import io.github.devoracode.feignmock.exception.MockDataException;
-import io.github.devoracode.feignmock.spel.MockExpressionEvaluator;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
