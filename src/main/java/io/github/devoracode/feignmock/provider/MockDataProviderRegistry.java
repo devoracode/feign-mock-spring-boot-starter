@@ -27,12 +27,12 @@ public class MockDataProviderRegistry implements ApplicationContextAware {
 	}
 
 	public MockDataProvider getProvider(Class<? extends MockDataProvider> providerClass) {
-		try {
-			return this.applicationContext.getBean(providerClass);
+		if (providerClass == MockDataProvider.None.class) {
+			throw new MockDataException(
+					"MockDataProvider.None is a sentinel type and cannot be used as a provider.");
 		}
-		catch (BeansException ex) {
-			return this.instanceCache.computeIfAbsent(providerClass, this::instantiateProvider);
-		}
+		MockDataProvider bean = this.applicationContext.getBeanProvider(providerClass).getIfAvailable();
+		return bean != null ? bean : this.instanceCache.computeIfAbsent(providerClass, this::instantiateProvider);
 	}
 
 	private MockDataProvider instantiateProvider(Class<?> providerClass) {

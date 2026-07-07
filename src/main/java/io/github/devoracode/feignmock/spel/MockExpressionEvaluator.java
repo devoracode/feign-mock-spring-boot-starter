@@ -32,6 +32,23 @@ public class MockExpressionEvaluator {
 
 	public static final String EXPRESSION_PREFIX = "#";
 
+	private static final Method SWITCH_METHOD;
+
+	private static final Method CONTAINS_METHOD;
+
+	private static final Method CHOOSE_METHOD;
+
+	static {
+		try {
+			SWITCH_METHOD = MockSpelFunctions.class.getMethod("switchOf", Object.class, Object[].class);
+			CONTAINS_METHOD = MockSpelFunctions.class.getMethod("containsOf", Object.class, Object.class);
+			CHOOSE_METHOD = MockSpelFunctions.class.getMethod("chooseOf", Object[].class);
+		}
+		catch (NoSuchMethodException ex) {
+			throw new MockDataException("Failed to register SpEL functions", ex);
+		}
+	}
+
 	private final SpelExpressionParser parser = new SpelExpressionParser();
 
 	private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>();
@@ -122,17 +139,9 @@ public class MockExpressionEvaluator {
 	}
 
 	private void registerFunctions(StandardEvaluationContext context) {
-		try {
-			Method switchMethod = MockSpelFunctions.class.getMethod("switchOf", Object.class, Object[].class);
-			context.registerFunction("switch", switchMethod);
-			Method containsMethod = MockSpelFunctions.class.getMethod("containsOf", Object.class, Object.class);
-			context.registerFunction("contains", containsMethod);
-			Method chooseMethod = MockSpelFunctions.class.getMethod("chooseOf", Object[].class);
-			context.registerFunction("choose", chooseMethod);
-		}
-		catch (NoSuchMethodException ex) {
-			throw new MockDataException("Failed to register SpEL functions", ex);
-		}
+		context.registerFunction("switch", SWITCH_METHOD);
+		context.registerFunction("contains", CONTAINS_METHOD);
+		context.registerFunction("choose", CHOOSE_METHOD);
 	}
 
 	private String[] resolveParameterNamesFromInterface(Method implementationMethod) {

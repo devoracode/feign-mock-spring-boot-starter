@@ -1,6 +1,7 @@
 package io.github.devoracode.feignmock.mock;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -29,10 +30,18 @@ public class MockDataLoader {
 
 	private final List<MockDataSource> dataSources;
 
+	private final ResourceMockDataSource resourceSource;
+
 	public MockDataLoader(ObjectMapper objectMapper, List<MockDataSource> dataSources) {
 		this.objectMapper = objectMapper;
-		dataSources.sort(Comparator.comparingInt(Ordered::getOrder));
-		this.dataSources = dataSources;
+		List<MockDataSource> sorted = new ArrayList<>(dataSources);
+		sorted.sort(Comparator.comparingInt(Ordered::getOrder));
+		this.dataSources = sorted;
+		this.resourceSource = sorted.stream()
+				.filter(ResourceMockDataSource.class::isInstance)
+				.map(ResourceMockDataSource.class::cast)
+				.findFirst()
+				.orElse(null);
 	}
 
 	public <T> T loadByKey(String key, Type returnType) {
@@ -42,13 +51,11 @@ public class MockDataLoader {
 	}
 
 	public <T> T loadByFile(String filePath, Type returnType) {
-		ResourceMockDataSource resourceSource = this.dataSources.stream()
-				.filter(ResourceMockDataSource.class::isInstance)
-				.map(ResourceMockDataSource.class::cast)
-				.findFirst()
-				.orElseThrow(() -> new MockDataException(
-						"ResourceMockDataSource is not available, cannot load file: " + filePath));
-		String json = resourceSource.loadByFilePath(filePath)
+		if (this.resourceSource == null) {
+			throw new MockDataException(
+					"ResourceMockDataSource is not available, cannot load file: " + filePath);
+		}
+		String json = this.resourceSource.loadByFilePath(filePath)
 				.orElseThrow(() -> new MockDataException("Mock file not found: classpath:" + filePath));
 		return deserialize(json, returnType);
 	}

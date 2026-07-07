@@ -2,7 +2,6 @@ package io.github.devoracode.feignmock.spel;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,13 +20,7 @@ import org.springframework.expression.spel.support.ReflectiveMethodResolver;
  */
 final class RestrictedMethodResolver implements MethodResolver {
 
-	private static final Set<String> ALLOWED_METHODS;
-
-	static {
-		Set<String> allowed = new HashSet<>();
-		allowed.add("contains");
-		ALLOWED_METHODS = Collections.unmodifiableSet(allowed);
-	}
+	private static final Set<String> ALLOWED_METHODS = Collections.singleton("contains");
 
 	private final ReflectiveMethodResolver delegate = new ReflectiveMethodResolver();
 

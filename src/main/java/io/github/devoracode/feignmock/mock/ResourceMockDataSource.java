@@ -60,7 +60,9 @@ public class ResourceMockDataSource implements MockDataSource {
 			Resource resource = this.resourceLoader.getResource(path);
 			if (!resource.exists()) {
 				logger.debug("Mock resource not found: {}", path);
-				return Optional.empty();
+				Optional<String> empty = Optional.empty();
+				this.cache.put(path, empty);
+				return empty;
 			}
 			String content = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
 			logger.debug("Loaded mock resource: {}", path);
