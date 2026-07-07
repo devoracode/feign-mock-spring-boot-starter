@@ -25,7 +25,7 @@
 <dependency>
   <groupId>io.github.devoracode</groupId>
   <artifactId>feign-mock-spring-boot-starter</artifactId>
-  <version>1.6.0</version>
+  <version>latestVersion</version>
 </dependency>
 ```
 
